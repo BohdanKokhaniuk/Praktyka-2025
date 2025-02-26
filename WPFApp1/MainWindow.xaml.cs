@@ -15,32 +15,33 @@ namespace WPFApp1
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            double x = ReadDouble(textBoxX.Text, "x");
-            double y = ReadDouble(textBoxY.Text, "y");
-            double z = ReadDouble(textBoxZ.Text, "z");
-
-            if (double.IsNaN(x) || double.IsNaN(y) || double.IsNaN(z))
+            if (!TryReadDouble(textBoxX.Text, "x", out double x) ||
+                !TryReadDouble(textBoxY.Text, "y", out double y) ||
+                !TryReadDouble(textBoxZ.Text, "z", out double z))
+            {
                 return; // Якщо були помилки, зупиняємо виконання
+            }
 
             double r = x + y + z;
-            textBoxR.Text = r.ToString("F2");
+            textBoxR.Text = r.ToString("F2", CultureInfo.InvariantCulture);
         }
 
-        private double ReadDouble(string input, string variableName)
+        private bool TryReadDouble(string input, string variableName, out double value)
         {
-            if (!double.TryParse(input, out double value))
+            if (!double.TryParse(input, NumberStyles.Any, CultureInfo.InvariantCulture, out value))
             {
                 MessageBox.Show($"Помилка введення значення {variableName}!", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return double.NaN;
+                return false;
             }
-            return value;
+            return true;
         }
 
         private void SetCulture()
         {
             CultureInfo customCulture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
             customCulture.NumberFormat.NumberDecimalSeparator = ".";
-            CultureInfo.CurrentCulture = customCulture;
+            CultureInfo.DefaultThreadCurrentCulture = customCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = customCulture;
         }
     }
 }
